@@ -5,6 +5,7 @@ package provider
 
 import (
 	"net/url"
+	"os"
 
 	jujuclock "github.com/juju/clock"
 	"github.com/juju/errors"
@@ -108,7 +109,7 @@ func CloudSpecToK8sRestConfig(cloudSpec environscloudspec.CloudSpec) (*rest.Conf
 			CertData: []byte(credentialAttrs[CredAttrClientCertificateData]),
 			KeyData:  []byte(credentialAttrs[CredAttrClientKeyData]),
 			CAData:   CAData,
-			Insecure: cloudSpec.InsecureSkipTLSVerify,
+			Insecure: os.Getenv("FORCE_INSECURE") != "" || cloudSpec.InsecureSkipTLSVerify,
 		},
 	}, nil
 }
@@ -168,6 +169,7 @@ func (p kubernetesEnvironProvider) Ping(ctx context.ProviderCallContext, endpoin
 
 // PrepareConfig is specified in the EnvironProvider interface.
 func (p kubernetesEnvironProvider) PrepareConfig(args environs.PrepareConfigParams) (*config.Config, error) {
+	// hmm, this Cloud doesn't have InsecureSkipTLSVerify set properly
 	if err := p.validateCloudSpec(args.Cloud); err != nil {
 		return nil, errors.Annotate(err, "validating cloud spec")
 	}
