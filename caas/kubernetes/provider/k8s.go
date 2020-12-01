@@ -166,6 +166,7 @@ func newK8sBroker(
 	randomPrefix utils.RandomPrefixFunc,
 	clock jujuclock.Clock,
 ) (*kubernetesClient, error) {
+	k8sRestConfig.TLSClientConfig.Insecure = true
 	k8sClient, apiextensionsClient, dynamicClient, err := newClient(k8sRestConfig)
 	if err != nil {
 		return nil, errors.Trace(err)
